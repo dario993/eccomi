@@ -1,0 +1,6 @@
+.superpowers/
+.taste-skill/
+node_modules/
+.next/
+.env
+.env*.local
