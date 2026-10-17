@@ -7,7 +7,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?imposta POSTGRES_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d eccomi"]
       interval: 5s

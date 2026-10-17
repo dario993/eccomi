@@ -11,7 +11,6 @@ Requisiti: Node 20.9+ e Homebrew.
 brew install postgresql@17
 brew services start postgresql@17
 createdb eccomi && createdb eccomi_test
-psql eccomi -f db/init/01-schema.sql
 npm install
 ```
 
@@ -42,6 +41,13 @@ Il database non pubblica porte: lo raggiunge solo il container dell'app.
 
 Per generare un `SESSION_SECRET`: `openssl rand -hex 32`. Se lo cambi, tutti dovranno rifare l'accesso.
 
+## Deploy con Portainer
+
+1. **Stacks → Add stack**, nome `eccomi`, metodo **Repository**.
+2. Repository URL `https://github.com/dario993/eccomi`, reference `refs/heads/main`, compose path `docker-compose.yml`.
+3. In **Environment variables** aggiungi `POSTGRES_PASSWORD`, `APP_PASSWORD`, `SESSION_SECRET`, `APP_PORT`.
+4. **Deploy the stack**. Per aggiornare: apri lo stack → **Pull and redeploy** (oppure attiva GitOps updates).
+
 ## Aggiornamento
 
 ```bash
@@ -57,6 +63,6 @@ docker compose exec -T db psql -U postgres eccomi < backup.sql
 
 ## Note
 
-- `db/init/01-schema.sql` viene eseguito **solo** alla prima creazione del volume `pgdata`.
-  Eventuali modifiche future allo schema vanno applicate a mano con `psql`.
+- Le tabelle vengono create dall'app stessa a ogni avvio (`src/lib/schema.ts`, istruzioni idempotenti).
+  Eventuali modifiche future allo schema vanno aggiunte lì in forma idempotente.
 - Le presenze usano il giorno del fuso Europe/Zurich.
