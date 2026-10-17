@@ -1,8 +1,10 @@
+import { requireAuth } from "@/lib/session";
 import { listVolunteers } from "@/lib/volunteers";
 import { AddVolunteerForm, ImportForm } from "./VolunteerForms";
 import { VolunteerRow } from "./VolunteerRow";
 
 export default async function VolontariPage() {
+  await requireAuth();
   const volunteers = await listVolunteers();
   const active = volunteers.filter((v) => v.active).length;
   return (

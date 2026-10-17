@@ -2,6 +2,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { requireAuth } from "@/lib/session";
 import { logout } from "../login/actions";
 
+// Pages call requireAuth() too: layouts are not re-run on client navigations.
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   await requireAuth();
   return (

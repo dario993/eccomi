@@ -7,6 +7,7 @@ test("missing or invalid params fall back to today", () => {
   expect(parseRange({}, T)).toEqual({ from: T, to: T });
   expect(parseRange({ from: "x", to: "2026-10-01" }, T)).toEqual({ from: T, to: T });
   expect(parseRange({ from: "2026-02-30", to: "2026-03-01" }, T)).toEqual({ from: T, to: T });
+  expect(parseRange({ from: "0000-01-01", to: "2026-01-01" }, T)).toEqual({ from: T, to: T }); // Postgres rejects year 0
 });
 
 test("a reversed range is swapped", () => {

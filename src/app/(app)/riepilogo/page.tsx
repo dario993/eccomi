@@ -3,6 +3,7 @@ import { RangePicker } from "@/components/RangePicker";
 import { SummaryView } from "@/components/SummaryView";
 import { formatRangeIt, todayZurich } from "@/lib/dates";
 import { parseRange } from "@/lib/range";
+import { requireAuth } from "@/lib/session";
 import { buildSummary, loadAttendances } from "@/lib/summary";
 
 export default async function RiepilogoPage({
@@ -10,6 +11,7 @@ export default async function RiepilogoPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+  await requireAuth();
   const today = todayZurich();
   const range = parseRange(await searchParams, today);
   const summary = buildSummary(range, await loadAttendances(range));

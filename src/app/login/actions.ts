@@ -9,7 +9,10 @@ const hash = (s: string) => createHash("sha256").update(s).digest();
 
 export async function login(_prev: string | null, formData: FormData): Promise<string | null> {
   const given = String(formData.get("password") ?? "");
-  if (!timingSafeEqual(hash(given), hash(process.env.APP_PASSWORD!))) return "Password errata";
+  if (!timingSafeEqual(hash(given), hash(process.env.APP_PASSWORD!))) {
+    await new Promise((r) => setTimeout(r, 1000)); // slows down password guessing
+    return "Password errata";
+  }
   (await cookies()).set(SESSION_COOKIE, createSessionToken(process.env.SESSION_SECRET!), {
     httpOnly: true,
     sameSite: "lax",

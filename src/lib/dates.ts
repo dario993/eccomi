@@ -18,7 +18,7 @@ export function daysBetween(from: string, to: string): number {
 }
 
 export function isValidDate(s: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(toUtc(s).getTime()) && fromUtc(toUtc(s)) === s;
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && s >= "1900-01-01" && !isNaN(toUtc(s).getTime()) && fromUtc(toUtc(s)) === s;
 }
 
 export function formatDateIt(date: string, style: "long" | "medium" | "short"): string {
