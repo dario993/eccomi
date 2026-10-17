@@ -21,9 +21,14 @@ export function isValidDate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(toUtc(s).getTime()) && fromUtc(toUtc(s)) === s;
 }
 
-export function formatDateIt(date: string, style: "long" | "short"): string {
+export function formatDateIt(date: string, style: "long" | "medium" | "short"): string {
   if (style === "short") return `${date.slice(8, 10)}.${date.slice(5, 7)}`;
   return new Intl.DateTimeFormat("it-CH", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+    ...(style === "long" && { weekday: "long" }),
+    day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
   }).format(toUtc(date)).replace(",", "");
+}
+
+export function formatRangeIt(from: string, to: string): string {
+  return from === to ? formatDateIt(from, "long") : `${formatDateIt(from, "medium")} – ${formatDateIt(to, "medium")}`;
 }

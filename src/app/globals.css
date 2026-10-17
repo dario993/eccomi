@@ -19,7 +19,6 @@
 body {
   background: var(--color-ground);
   color: var(--color-ink);
-  font-feature-settings: "tnum";
   -webkit-tap-highlight-color: transparent;
 }
 
