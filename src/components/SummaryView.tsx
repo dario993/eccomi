@@ -1,4 +1,4 @@
-import { formatDateIt } from "@/lib/dates";
+import { summaryToTable } from "@/lib/pdfTable";
 import type { Summary } from "@/lib/summary";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -42,8 +42,9 @@ export function SummaryView({ summary }: { summary: Summary }) {
         <thead>
           <tr className="text-sm text-muted">
             <th scope="col" className="sticky left-0 bg-ground py-2 pr-3 text-left font-medium">Volontario</th>
-            {summary.days.map((d) => (
-              <th key={d} scope="col" className="px-2 py-2 font-medium">{formatDateIt(d, "short")}</th>
+            {/* Same day labels as the PDF */}
+            {summaryToTable(summary).head.slice(1, -1).map((label, i) => (
+              <th key={summary.days[i]} scope="col" className="px-2 py-2 font-medium">{label}</th>
             ))}
             <th scope="col" className="px-3 py-2 text-right font-medium">Totale</th>
           </tr>

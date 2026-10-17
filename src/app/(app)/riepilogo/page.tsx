@@ -1,3 +1,4 @@
+import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { RangePicker } from "@/components/RangePicker";
 import { SummaryView } from "@/components/SummaryView";
 import { formatRangeIt, todayZurich } from "@/lib/dates";
@@ -21,6 +22,9 @@ export default async function RiepilogoPage({
       <h2 className="mt-10 text-2xl font-bold tracking-[-0.02em] first-letter:uppercase">{formatRangeIt(range.from, range.to)}</h2>
       <div className="mt-2">
         <SummaryView summary={summary} />
+      </div>
+      <div className="mt-8">
+        <ExportPdfButton summary={summary} />
       </div>
     </>
   );
