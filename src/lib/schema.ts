@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS attendances (
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (volunteer_id, date)
 );
+
+CREATE TABLE IF NOT EXISTS groups (
+  id serial PRIMARY KEY,
+  name text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS groups_name_uniq ON groups (lower(name));
+
+CREATE TABLE IF NOT EXISTS group_members (
+  group_id int NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  volunteer_id int NOT NULL REFERENCES volunteers(id),
+  PRIMARY KEY (group_id, volunteer_id)
+);
 `;
 
 export async function applySchema(sql: { unsafe: (query: string) => PromiseLike<unknown> }): Promise<void> {

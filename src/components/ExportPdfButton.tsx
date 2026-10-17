@@ -7,6 +7,7 @@ import type { Summary } from "@/lib/summary";
 
 const BLUE: [number, number, number] = [0, 82, 214];
 const INK: [number, number, number] = [11, 27, 51];
+const SURFACE: [number, number, number] = [230, 236, 245];
 
 export async function buildPdf(summary: Summary) {
   const [{ jsPDF }, { autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
@@ -23,7 +24,13 @@ export async function buildPdf(summary: Summary) {
   autoTable(doc, {
     startY: 32,
     head: [t.head],
-    body: t.body.length ? t.body : [["Nessuna presenza nel periodo"]],
+    body: t.body.length
+      ? t.body.map((r) =>
+          Array.isArray(r)
+            ? r
+            : [{ content: r.group, colSpan: t.head.length, styles: { fontStyle: "bold", fillColor: SURFACE, halign: "left" } }],
+        )
+      : [["Nessuna presenza nel periodo"]],
     theme: "plain",
     margin: { left: 14, right: 14 },
     styles: { font: "helvetica", fontSize: dense ? 8 : 10, textColor: INK, cellPadding: dense ? 1.2 : 2 },
@@ -31,7 +38,7 @@ export async function buildPdf(summary: Summary) {
     alternateRowStyles: { fillColor: [243, 246, 251] },
     columnStyles: centred ? { 0: { halign: "left", minCellWidth: 40 } } : {},
     didParseCell: (d) => {
-      if (centred && d.column.index > 0) d.cell.styles.halign = "center";
+      if (centred && d.column.index > 0 && d.cell.colSpan === 1) d.cell.styles.halign = "center";
       if (d.cell.raw === MARK) d.cell.text = []; // Helvetica has no bullet glyph: draw it instead
     },
     didDrawCell: (d) => {

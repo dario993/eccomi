@@ -14,7 +14,8 @@ Un campo password. La password è unica e condivisa (`APP_PASSWORD`). Dopo l'acc
 ## Volontari (`/volontari`)
 - Elenco di tutti i volontari (attivi e non), ordinati per nome.
 - Bottone "Attivo / Non attivo" per riga: i non attivi spariscono da Presenze ma restano nei riepiloghi storici.
-- Tocco sul nome → modifica nome e cognome in linea.
+- Tocco sul nome → modifica nome, cognome e gruppi (caselle, anche più di uno) in linea. Sotto il nome compaiono i suoi gruppi.
+- "Gruppi (N)": crea un gruppo; tocco su un gruppo → rinomina o elimina (eliminare non tocca volontari né presenze).
 - "Aggiungi volontario": nome obbligatorio, cognome facoltativo.
 - "Incolla un elenco": una persona per riga, **prima parola = nome, resto = cognome**; righe vuote e doppioni ignorati; esito "Importati N, già presenti M".
 - Nessuna cancellazione, solo disattivazione. Nomi unici senza distinzione di maiuscole.
@@ -27,6 +28,7 @@ Un campo password. La password è unica e condivisa (`APP_PASSWORD`). Dopo l'acc
   - **grid** (2–31 giorni): griglia volontari × giorni con pallino e colonna Totale; solo giorni con almeno una presenza; prima colonna fissa, scorrimento orizzontale.
   - **totals** (oltre 31 giorni): per ogni volontario solo il numero di giorni di presenza.
 - Include anche i volontari ora non attivi, se hanno presenze nel periodo.
+- Raggruppato per gruppo (ordine alfabetico), "Senza gruppo" in fondo; chi sta in più gruppi compare in ciascuno. Se nessun presente ha un gruppo, nessuna intestazione. Il conteggio "N presenti" conta le persone una volta sola.
 
 ## Esporta PDF
-Bottone in fondo al riepilogo. Generato nel browser con jsPDF + jspdf-autotable (import dinamico). Stessi dati dello schermo (`summaryToTable`). Intestazione "Dare – Eccomi", periodo, tabella con testata blu, piè di pagina "Generato il … · Pagina N". Orizzontale oltre 10 giorni; stile compatto oltre 22 colonne. Nome file: `presenze-<giorno>.pdf` o `presenze-<da>_<a>.pdf`.
+Bottone in fondo al riepilogo. Generato nel browser con jsPDF + jspdf-autotable (import dinamico). Stessi dati dello schermo (`summaryToTable`), con una riga d'intestazione per ogni gruppo. Intestazione "Dare – Eccomi", periodo, tabella con testata blu, piè di pagina "Generato il … · Pagina N". Orizzontale oltre 10 giorni; stile compatto oltre 22 colonne. Nome file: `presenze-<giorno>.pdf` o `presenze-<da>_<a>.pdf`.

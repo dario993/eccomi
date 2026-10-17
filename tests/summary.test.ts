@@ -3,9 +3,10 @@ import { resetDb } from "./db";
 import { buildSummary, loadAttendances, type AttendanceRow } from "@/lib/summary";
 import { setPresent } from "@/lib/attendance";
 import { importVolunteers, listVolunteers, setActive } from "@/lib/volunteers";
+import { addGroup, listGroups, setVolunteerGroups } from "@/lib/groups";
 
-const row = (volunteer_id: number, first_name: string, last_name: string, date: string): AttendanceRow => ({
-  volunteer_id, first_name, last_name, date,
+const row = (volunteer_id: number, first_name: string, last_name: string, date: string, groups: string[] = []): AttendanceRow => ({
+  volunteer_id, first_name, last_name, date, groups,
 });
 
 test("single day lists present names sorted", () => {
@@ -13,7 +14,12 @@ test("single day lists present names sorted", () => {
     row(2, "Zoe", "Bianchi", "2026-10-17"),
     row(1, "Anna", "Rossi", "2026-10-17"),
   ]);
-  expect(s).toEqual({ mode: "day", range: { from: "2026-10-17", to: "2026-10-17" }, names: ["Anna Rossi", "Zoe Bianchi"] });
+  expect(s).toEqual({
+    mode: "day",
+    range: { from: "2026-10-17", to: "2026-10-17" },
+    present: 2,
+    sections: [{ title: null, names: ["Anna Rossi", "Zoe Bianchi"] }],
+  });
 });
 
 test("up to 31 days gives a grid with only days that had someone", () => {
@@ -25,10 +31,13 @@ test("up to 31 days gives a grid with only days that had someone", () => {
   expect(s.mode).toBe("grid");
   if (s.mode !== "grid") return;
   expect(s.days).toEqual(["2026-10-05", "2026-10-09"]);
-  expect(s.rows).toEqual([
-    { name: "Anna Rossi", marks: [true, true], total: 2 },
-    { name: "Luca Bianchi", marks: [false, true], total: 1 },
-  ]);
+  expect(s.sections).toEqual([{
+    title: null,
+    rows: [
+      { name: "Anna Rossi", marks: [true, true], total: 2 },
+      { name: "Luca Bianchi", marks: [false, true], total: 1 },
+    ],
+  }]);
 });
 
 test("more than 31 days gives totals only", () => {
@@ -39,14 +48,14 @@ test("more than 31 days gives totals only", () => {
   expect(s).toEqual({
     mode: "totals",
     range: { from: "2026-10-01", to: "2026-11-01" },
-    rows: [{ name: "Anna Rossi", total: 2 }],
+    sections: [{ title: null, rows: [{ name: "Anna Rossi", total: 2 }] }],
   });
 });
 
 test("empty period and missing last name", () => {
-  expect(buildSummary({ from: "2026-10-01", to: "2026-10-31" }, [])).toMatchObject({ mode: "grid", days: [], rows: [] });
+  expect(buildSummary({ from: "2026-10-01", to: "2026-10-31" }, [])).toMatchObject({ mode: "grid", days: [], sections: [] });
   const s = buildSummary({ from: "2026-10-17", to: "2026-10-17" }, [row(1, "Pippo", "", "2026-10-17")]);
-  expect(s).toMatchObject({ names: ["Pippo"] });
+  expect(s).toMatchObject({ sections: [{ names: ["Pippo"] }] });
 });
 
 test("two volunteers with the same displayed name stay separate rows", () => {
@@ -54,7 +63,23 @@ test("two volunteers with the same displayed name stay separate rows", () => {
     row(1, "Anna", "Rossi", "2026-10-05"),
     row(2, "anna", "rossi", "2026-10-06"),
   ]);
-  expect(s.mode === "grid" && s.rows.length).toBe(2);
+  expect(s.mode === "grid" && s.sections[0].rows.length).toBe(2);
+});
+
+test("volunteers are listed under each of their groups, ungrouped last", () => {
+  const s = buildSummary({ from: "2026-10-17", to: "2026-10-17" }, [
+    row(1, "Anna", "Rossi", "2026-10-17", ["Cucina", "autisti"]),
+    row(2, "Luca", "Bianchi", "2026-10-17", ["Cucina"]),
+    row(3, "Zoe", "Neri", "2026-10-17"),
+  ]);
+  expect(s).toMatchObject({
+    present: 3,
+    sections: [
+      { title: "autisti", names: ["Anna Rossi"] },
+      { title: "Cucina", names: ["Anna Rossi", "Luca Bianchi"] },
+      { title: "Senza gruppo", names: ["Zoe Neri"] },
+    ],
+  });
 });
 
 beforeEach(resetDb);
@@ -68,4 +93,19 @@ test("loadAttendances includes inactive volunteers and respects the range", asyn
   await setActive(anna.id, false);
   const rows = await loadAttendances({ from: "2026-10-01", to: "2026-10-31" });
   expect(rows.map((r) => `${r.first_name} ${r.date}`).sort()).toEqual(["Anna 2026-10-05", "Luca 2026-10-06"]);
+});
+
+test("loadAttendances carries each volunteer's group names", async () => {
+  await importVolunteers("Anna Rossi\nLuca Bianchi");
+  await addGroup("Cucina");
+  await addGroup("Autisti");
+  const [anna, luca] = await listVolunteers();
+  await setVolunteerGroups(anna.id, (await listGroups()).map((g) => g.id));
+  await setPresent(anna.id, "2026-10-05", true);
+  await setPresent(luca.id, "2026-10-05", true);
+  const rows = await loadAttendances({ from: "2026-10-05", to: "2026-10-05" });
+  expect(rows.map((r) => [r.first_name, [...r.groups].sort()]).sort()).toEqual([
+    ["Anna", ["Autisti", "Cucina"]],
+    ["Luca", []],
+  ]);
 });

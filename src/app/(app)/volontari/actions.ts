@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/session";
+import { addGroup, deleteGroup, renameGroup, setVolunteerGroups } from "@/lib/groups";
 import { addVolunteer, importVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
 
 const refresh = () => {
@@ -30,12 +31,38 @@ export async function importAction(_prev: FormResult, formData: FormData): Promi
   return { ok: true, message: `Importati ${imported}, già presenti ${skipped}.` };
 }
 
-export async function updateAction(id: number, first: string, last: string): Promise<FormResult> {
+export async function updateAction(id: number, first: string, last: string, groupIds: number[]): Promise<FormResult> {
   await requireAuth();
   if (!first.trim()) return { ok: false, message: "Il nome non può essere vuoto." };
   const res = await updateVolunteer(id, first, last);
+  if (res === "ok") await setVolunteerGroups(id, groupIds.filter(Number.isInteger));
   refresh();
   return res === "ok" ? null : { ok: false, message: "Esiste già una persona con questo nome." };
+}
+
+export async function addGroupAction(_prev: FormResult, formData: FormData): Promise<FormResult> {
+  await requireAuth();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { ok: false, message: "Inserisci il nome del gruppo." };
+  const res = await addGroup(name);
+  refresh();
+  return res === "ok"
+    ? { ok: true, message: `Gruppo ${name} creato. Assegnalo toccando un volontario.` }
+    : { ok: false, message: "Esiste già un gruppo con questo nome." };
+}
+
+export async function renameGroupAction(id: number, name: string): Promise<FormResult> {
+  await requireAuth();
+  if (!name.trim()) return { ok: false, message: "Il nome non può essere vuoto." };
+  const res = await renameGroup(id, name);
+  refresh();
+  return res === "ok" ? null : { ok: false, message: "Esiste già un gruppo con questo nome." };
+}
+
+export async function deleteGroupAction(id: number): Promise<void> {
+  await requireAuth();
+  await deleteGroup(id);
+  refresh();
 }
 
 export async function setActiveAction(id: number, active: boolean): Promise<void> {

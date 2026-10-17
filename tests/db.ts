@@ -8,7 +8,7 @@ let ready: Promise<void> | undefined;
 // Recreates the schema once per run (drops existing tables first).
 function ensureSchema() {
   ready ??= (async () => {
-    await testSql`DROP TABLE IF EXISTS attendances, volunteers`;
+    await testSql`DROP TABLE IF EXISTS group_members, groups, attendances, volunteers`;
     await applySchema(testSql);
   })();
   return ready;
@@ -16,5 +16,5 @@ function ensureSchema() {
 
 export async function resetDb() {
   await ensureSchema();
-  await testSql`TRUNCATE attendances, volunteers RESTART IDENTITY`;
+  await testSql`TRUNCATE group_members, groups, attendances, volunteers RESTART IDENTITY`;
 }

@@ -1,7 +1,7 @@
 import { sql, type Volunteer } from "./db";
 import { parseNameList } from "./import";
 
-const collator = new Intl.Collator("it", { sensitivity: "base" });
+export const collator = new Intl.Collator("it", { sensitivity: "base" });
 
 export function compareVolunteers(
   a: { first_name: string; last_name: string },
@@ -10,13 +10,15 @@ export function compareVolunteers(
   return collator.compare(a.first_name, b.first_name) || collator.compare(a.last_name, b.last_name);
 }
 
-const clean = (s: string) => s.trim().replace(/\s+/g, " ");
+export const clean = (s: string) => s.trim().replace(/\s+/g, " ");
 
-const isDuplicate = (e: unknown) => (e as { code?: string }).code === "23505";
+export const isDuplicate = (e: unknown) => (e as { code?: string }).code === "23505";
 
 export async function listVolunteers(opts: { activeOnly?: boolean } = {}): Promise<Volunteer[]> {
   const rows = await sql<Volunteer[]>`
-    SELECT id, first_name, last_name, active FROM volunteers
+    SELECT id, first_name, last_name, active,
+      ARRAY(SELECT group_id FROM group_members m WHERE m.volunteer_id = v.id) AS group_ids
+    FROM volunteers v
     ${opts.activeOnly ? sql`WHERE active` : sql``}`;
   return [...rows].sort(compareVolunteers);
 }
