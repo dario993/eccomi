@@ -1,6 +1,8 @@
 import { beforeEach, expect, test } from "vitest";
 import { resetDb } from "./db";
-import { addVolunteer, importVolunteers, listVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
+import { addVolunteer, deleteVolunteer, importVolunteers, listVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
+import { addGroup, listGroups, setVolunteerGroups } from "@/lib/groups";
+import { presentIds, setPresent } from "@/lib/attendance";
 
 beforeEach(resetDb);
 
@@ -31,4 +33,21 @@ test("inactive volunteers are hidden only from the active list", async () => {
   await setActive(anna.id, false);
   expect((await listVolunteers({ activeOnly: true })).map((v) => v.first_name)).toEqual(["Luca"]);
   expect(await listVolunteers()).toHaveLength(2);
+});
+
+test("delete removes the volunteer with attendances and group memberships, keeps the others", async () => {
+  await importVolunteers("Anna Rossi\nLuca Bianchi");
+  await addGroup("Cucina");
+  const [cucina] = await listGroups();
+  const [anna, luca] = await listVolunteers();
+  await setVolunteerGroups(anna.id, [cucina.id]);
+  await setPresent(anna.id, "2026-10-01", true);
+  await setPresent(luca.id, "2026-10-01", true);
+
+  await deleteVolunteer(anna.id);
+
+  expect((await listVolunteers()).map((v) => v.first_name)).toEqual(["Luca"]);
+  expect([...(await presentIds("2026-10-01"))]).toEqual([luca.id]);
+  expect(await listGroups()).toHaveLength(1);
+  expect(await addVolunteer("Anna", "Rossi")).toBe("ok");
 });

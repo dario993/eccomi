@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/session";
 import { addGroup, deleteGroup, renameGroup, setVolunteerGroups } from "@/lib/groups";
-import { addVolunteer, importVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
+import { addVolunteer, deleteVolunteer, importVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
 
 const refresh = () => {
   revalidatePath("/volontari");
@@ -69,4 +69,11 @@ export async function setActiveAction(id: number, active: boolean): Promise<void
   await requireAuth();
   await setActive(id, active);
   refresh();
+}
+
+export async function deleteVolunteerAction(id: number): Promise<void> {
+  await requireAuth();
+  await deleteVolunteer(id);
+  refresh();
+  revalidatePath("/riepilogo");
 }

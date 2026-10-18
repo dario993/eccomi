@@ -18,7 +18,7 @@ Un campo password. La password è unica e condivisa (`APP_PASSWORD`). Dopo l'acc
 - "Gruppi (N)": crea un gruppo; tocco su un gruppo → rinomina o elimina (eliminare non tocca volontari né presenze).
 - "Aggiungi volontario": nome obbligatorio, cognome facoltativo.
 - "Incolla un elenco": una persona per riga, **prima parola = nome, resto = cognome**; righe vuote e doppioni ignorati; esito "Importati N, già presenti M".
-- Nessuna cancellazione, solo disattivazione. Nomi unici senza distinzione di maiuscole.
+- "Elimina volontario" (in modifica): doppia conferma con avviso; cancella definitivamente il volontario **e tutte le sue presenze**. Per toglierlo solo da Presenze si usa "Non attivo". Nomi unici senza distinzione di maiuscole.
 
 ## Riepilogo (`/riepilogo`)
 - Periodo nell'URL (`?from=YYYY-MM-DD&to=YYYY-MM-DD`). Scorciatoie: Oggi, Questa settimana (lun–dom), Questo mese; oppure "Da / A" con input data nativi.

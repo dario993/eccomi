@@ -2,12 +2,15 @@
 
 import { useState, useTransition } from "react";
 import type { Group, Volunteer } from "@/lib/db";
-import { setActiveAction, updateAction } from "./actions";
+import { deleteVolunteerAction, setActiveAction, updateAction } from "./actions";
 
 export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  // 0 = no delete in progress, 1 = warning shown, 2 = final confirmation.
+  const [confirmStep, setConfirmStep] = useState(0);
+  const name = `${v.first_name} ${v.last_name}`.trim();
 
   if (editing) {
     return (
@@ -44,9 +47,39 @@ export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
           )}
           {error && <p role="alert" className="col-span-2 text-danger">{error}</p>}
           <button disabled={pending} className="h-12 bg-blue font-semibold text-white">Salva</button>
-          <button type="button" onClick={() => { setEditing(false); setError(null); }} className="h-12 bg-surface font-medium">
+          <button type="button" onClick={() => { setEditing(false); setError(null); setConfirmStep(0); }} className="h-12 bg-surface font-medium">
             Annulla
           </button>
+          {confirmStep === 0 ? (
+            <button type="button" onClick={() => setConfirmStep(1)} className="col-span-2 mt-4 h-12 bg-surface font-medium text-danger">
+              Elimina volontario
+            </button>
+          ) : (
+            <div role="alertdialog" aria-label={`Elimina ${name}`} className="col-span-2 mt-4 flex flex-col gap-3 bg-danger p-4 text-white">
+              {confirmStep === 1 ? (
+                <p>
+                  Stai per eliminare <strong>{name}</strong>. Verranno cancellate anche <strong>tutte le sue presenze</strong>,
+                  anche nei riepiloghi passati. L&apos;operazione è irreversibile.
+                  <span className="mt-2 block">Se vuoi solo toglierlo da Presenze, usa invece &ldquo;Non attivo&rdquo;.</span>
+                </p>
+              ) : (
+                <p className="font-semibold">Ultima conferma: {name} e il suo storico verranno eliminati definitivamente.</p>
+              )}
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => setConfirmStep(0)} className="h-12 bg-white font-medium text-ink">
+                  Annulla
+                </button>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => (confirmStep === 1 ? setConfirmStep(2) : start(() => deleteVolunteerAction(v.id)))}
+                  className="h-12 bg-ink font-semibold text-white"
+                >
+                  {confirmStep === 1 ? "Continua" : "Elimina definitivamente"}
+                </button>
+              </div>
+            </div>
+          )}
         </form>
       </li>
     );

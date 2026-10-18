@@ -9,7 +9,7 @@
 | Fuso Europe/Zurich | associazione in Svizzera |
 | Ordinamento per nome | richiesta |
 | Import: prima parola = nome | lista "Nome Cognome" per riga; casi particolari si correggono a mano |
-| Disattivare invece di cancellare | conserva lo storico presenze |
+| Disattivare invece di cancellare | conserva lo storico presenze; l'eliminazione esiste solo per errori di inserimento, con doppia conferma |
 | Griglia fino a 31 giorni, oltre solo totali | richiesta (oltre un mese vista minimale) |
 | Colonne griglia solo giorni con presenze | leggibilità |
 | Etichette giorno "05" dentro un mese, "05.10" a cavallo | 31 colonne devono stare in A4 orizzontale |

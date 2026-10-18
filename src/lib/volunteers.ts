@@ -47,6 +47,15 @@ export async function setActive(id: number, active: boolean): Promise<void> {
   await sql`UPDATE volunteers SET active = ${active} WHERE id = ${id}`;
 }
 
+// Irreversible: also wipes the volunteer's attendance history.
+export async function deleteVolunteer(id: number): Promise<void> {
+  await sql.begin(async (tx) => {
+    await tx`DELETE FROM attendances WHERE volunteer_id = ${id}`;
+    await tx`DELETE FROM group_members WHERE volunteer_id = ${id}`;
+    await tx`DELETE FROM volunteers WHERE id = ${id}`;
+  });
+}
+
 export async function importVolunteers(text: string): Promise<{ imported: number; skipped: number }> {
   const entries = parseNameList(text);
   let imported = 0;
