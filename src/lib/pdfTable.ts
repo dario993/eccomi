@@ -7,6 +7,7 @@ const LANDSCAPE_AFTER_DAYS = 10;
 export type PdfTable = {
   title: string;
   subtitle: string;
+  /** Empty = no header row. */
   head: string[];
   /** `{ group }` rows are group headings spanning the whole table. */
   body: (string[] | { group: string })[];
@@ -22,8 +23,8 @@ function withHeadings<T extends { title: string | null }>(sections: T[], toRows:
 export function summaryToTable(s: Summary): PdfTable {
   const { from, to } = s.range;
   const base = {
-    title: "Dare – Eccomi",
-    subtitle: formatRangeIt(from, to),
+    title: "ASSOCIAZIONE DARE – ECCOMI",
+    subtitle: `Presenze ${formatRangeIt(from, to)}`,
     filename: from === to ? `presenze-${from}.pdf` : `presenze-${from}_${to}.pdf`,
     orientation: "portrait" as const,
   };
@@ -31,8 +32,8 @@ export function summaryToTable(s: Summary): PdfTable {
     const n = s.present;
     return {
       ...base,
-      subtitle: `${base.subtitle} · ${n} ${n === 1 ? "presente" : "presenti"}`,
-      head: ["Volontario"],
+      subtitle: `${base.subtitle} – ${n} ${n === 1 ? "presente" : "presenti"}`,
+      head: [], // a single name column needs no header
       body: withHeadings(s.sections, (sec) => sec.names.map((n) => [n])),
     };
   }

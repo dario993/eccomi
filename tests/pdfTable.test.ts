@@ -10,9 +10,9 @@ test("single day", () => {
     sections: [{ title: null, names: ["Anna Rossi", "Luca Bianchi"] }],
   });
   expect(t).toMatchObject({
-    title: "Dare – Eccomi",
-    subtitle: "sabato 17 ottobre 2026 · 2 presenti",
-    head: ["Volontario"],
+    title: "ASSOCIAZIONE DARE – ECCOMI",
+    subtitle: "Presenze sabato 17 ottobre 2026 – 2 presenti",
+    head: [],
     body: [["Anna Rossi"], ["Luca Bianchi"]],
     orientation: "portrait",
     filename: "presenze-2026-10-17.pdf",
@@ -25,7 +25,7 @@ test("grid", () => {
     sections: [{ title: null, rows: [{ name: "Anna Rossi", marks: [true, false], total: 1 }] }],
   };
   expect(summaryToTable(s)).toMatchObject({
-    subtitle: "1 ottobre 2026 – 31 ottobre 2026",
+    subtitle: "Presenze 1 ottobre 2026 – 31 ottobre 2026",
     head: ["Volontario", "05", "09", "Totale"],
     body: [["Anna Rossi", MARK, "", "1"]],
     orientation: "portrait",

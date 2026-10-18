@@ -4,10 +4,10 @@ import { useState } from "react";
 import { formatDateIt, todayZurich } from "@/lib/dates";
 import { MARK, summaryToTable } from "@/lib/pdfTable";
 import type { Summary } from "@/lib/summary";
+import type { RowInput } from "jspdf-autotable";
 
 const BLUE: [number, number, number] = [0, 82, 214];
 const INK: [number, number, number] = [11, 27, 51];
-const SURFACE: [number, number, number] = [230, 236, 245];
 
 export async function buildPdf(summary: Summary) {
   const [{ jsPDF }, { autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
@@ -19,16 +19,21 @@ export async function buildPdf(summary: Summary) {
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(...BLUE).text(t.title, 14, 18);
   doc.setFont("helvetica", "normal").setFontSize(12).setTextColor(...INK).text(t.subtitle, 14, 26);
 
+  const cols = Math.max(t.head.length, 1);
   const centred = t.head.length > 2;
   const dense = t.head.length > 22; // a full month: shrink so every day fits on the page
   autoTable(doc, {
     startY: 32,
-    head: [t.head],
+    head: t.head.length ? [t.head] : [],
     body: t.body.length
-      ? t.body.map((r) =>
+      ? t.body.flatMap<RowInput>((r, i) =>
           Array.isArray(r)
-            ? r
-            : [{ content: r.group, colSpan: t.head.length, styles: { fontStyle: "bold", fillColor: SURFACE, halign: "left" } }],
+            ? [r]
+            : [
+                // A blank gap before every group (except a first one with no header row above), so groups read as separate blocks.
+                ...(i === 0 && !t.head.length ? [] : [[{ content: "", colSpan: cols, styles: { fillColor: 255, minCellHeight: 6, cellPadding: 0 } }]]),
+                [{ content: r.group, colSpan: cols, styles: { fontStyle: "bold", fillColor: BLUE, textColor: 255, halign: "left" } }],
+              ],
         )
       : [["Nessuna presenza nel periodo"]],
     theme: "plain",
