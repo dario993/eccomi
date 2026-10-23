@@ -1,6 +1,6 @@
 import { beforeEach, expect, test } from "vitest";
 import { resetDb } from "./db";
-import { addVolunteer, deleteVolunteer, importVolunteers, listVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
+import { addVolunteer, deleteVolunteer, importVolunteers, listVolunteers, setActive, setWeekdays, updateVolunteer } from "@/lib/volunteers";
 import { addGroup, listGroups, setVolunteerGroups } from "@/lib/groups";
 import { presentIds, setPresent } from "@/lib/attendance";
 
@@ -50,4 +50,12 @@ test("delete removes the volunteer with attendances and group memberships, keeps
   expect([...(await presentIds("2026-10-01"))]).toEqual([luca.id]);
   expect(await listGroups()).toHaveLength(1);
   expect(await addVolunteer("Anna", "Rossi")).toBe("ok");
+});
+
+test("weekdays default to every day and can be changed (invalid values dropped)", async () => {
+  await addVolunteer("Anna", "Rossi");
+  const [anna] = await listVolunteers();
+  expect(anna.weekdays).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  await setWeekdays(anna.id, [3, 1, 9, 0, 3]);
+  expect((await listVolunteers())[0].weekdays).toEqual([1, 3]);
 });

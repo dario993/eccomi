@@ -1,6 +1,6 @@
 import postgres from "postgres";
 
-export type Volunteer = { id: number; first_name: string; last_name: string; active: boolean; group_ids: number[] };
+export type Volunteer = { id: number; first_name: string; last_name: string; active: boolean; group_ids: number[]; weekdays: number[] };
 export type Group = { id: number; name: string };
 
 // Keep `date` columns as 'YYYY-MM-DD' strings instead of JS Dates (avoids timezone shifts).

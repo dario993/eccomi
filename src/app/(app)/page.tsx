@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AttendanceList } from "@/components/AttendanceList";
 import { presentIds } from "@/lib/attendance";
-import { formatDateIt, todayZurich } from "@/lib/dates";
+import { formatDateIt, todayZurich, weekdayIso } from "@/lib/dates";
 import { requireAuth } from "@/lib/session";
 import { listVolunteers } from "@/lib/volunteers";
 
@@ -22,7 +22,7 @@ export default async function PresenzePage() {
           </Link>
         </p>
       ) : (
-        <AttendanceList volunteers={volunteers} presentIds={[...present]} />
+        <AttendanceList volunteers={volunteers} presentIds={[...present]} weekday={weekdayIso(today)} />
       )}
     </>
   );

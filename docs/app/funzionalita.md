@@ -5,7 +5,8 @@ Un campo password. La password è unica e condivisa (`APP_PASSWORD`). Dopo l'acc
 
 ## Presenze (`/`), schermata principale
 - Titolo: data di oggi estesa (fuso Europe/Zurich), contatore "N presenti su M".
-- Lista dei volontari **attivi**, ordinata per nome poi cognome; campo di ricerca (ignora maiuscole e accenti).
+- Lista dei volontari **attivi previsti oggi** (giorno della settimana, vedi Volontari) più chi è già segnato presente; ordinata per nome poi cognome; campo di ricerca (ignora maiuscole e accenti).
+- Spunta "Mostra anche chi non è previsto oggi": lista e ricerca su tutti gli attivi, per segnare chi arriva fuori giorno. Il contatore è "N presenti su M previsti".
 - **Un tocco = presente**: la riga diventa blu con la scritta "Eccomi". Un secondo tocco toglie la presenza.
 - Aggiornamento ottimistico (`useOptimistic`): la UI cambia subito; se il salvataggio fallisce torna indietro con un messaggio.
 - Si segna **solo il giorno corrente**; la data è calcolata sul server, mai inviata dal client.
@@ -14,7 +15,7 @@ Un campo password. La password è unica e condivisa (`APP_PASSWORD`). Dopo l'acc
 ## Volontari (`/volontari`)
 - Elenco di tutti i volontari (attivi e non), ordinati per nome.
 - Bottone "Attivo / Non attivo" per riga: i non attivi spariscono da Presenze ma restano nei riepiloghi storici.
-- Tocco sul nome → modifica nome, cognome e gruppi (caselle, anche più di uno) in linea. Sotto il nome compaiono i suoi gruppi.
+- Tocco sul nome → modifica nome, cognome, giorni previsti (Lu–Do, di default tutti) e gruppi (caselle, anche più di uno) in linea. Sotto il nome compaiono i giorni (se non sono tutti) e i gruppi.
 - "Gruppi (N)": crea un gruppo; tocco su un gruppo → rinomina o elimina (eliminare non tocca volontari né presenze).
 - "Aggiungi volontario": nome obbligatorio, cognome facoltativo.
 - "Incolla un elenco": una persona per riga, **prima parola = nome, resto = cognome**; righe vuote e doppioni ignorati; esito "Importati N, già presenti M".

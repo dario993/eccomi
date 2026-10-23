@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/session";
 import { addGroup, deleteGroup, renameGroup, setVolunteerGroups } from "@/lib/groups";
-import { addVolunteer, deleteVolunteer, importVolunteers, setActive, updateVolunteer } from "@/lib/volunteers";
+import { addVolunteer, deleteVolunteer, importVolunteers, setActive, setWeekdays, updateVolunteer } from "@/lib/volunteers";
 
 const refresh = () => {
   revalidatePath("/volontari");
@@ -31,11 +31,20 @@ export async function importAction(_prev: FormResult, formData: FormData): Promi
   return { ok: true, message: `Importati ${imported}, già presenti ${skipped}.` };
 }
 
-export async function updateAction(id: number, first: string, last: string, groupIds: number[]): Promise<FormResult> {
+export async function updateAction(
+  id: number,
+  first: string,
+  last: string,
+  groupIds: number[],
+  weekdays: number[],
+): Promise<FormResult> {
   await requireAuth();
   if (!first.trim()) return { ok: false, message: "Il nome non può essere vuoto." };
   const res = await updateVolunteer(id, first, last);
-  if (res === "ok") await setVolunteerGroups(id, groupIds.filter(Number.isInteger));
+  if (res === "ok") {
+    await setVolunteerGroups(id, groupIds.filter(Number.isInteger));
+    await setWeekdays(id, weekdays);
+  }
   refresh();
   return res === "ok" ? null : { ok: false, message: "Esiste già una persona con questo nome." };
 }

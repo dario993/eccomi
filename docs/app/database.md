@@ -6,7 +6,8 @@ PostgreSQL 17. Driver `postgres` (porsager), query SQL con template literal (par
 
 ```sql
 volunteers(id serial PK, first_name text NOT NULL, last_name text NOT NULL DEFAULT '',
-           active boolean NOT NULL DEFAULT true, created_at timestamptz)
+           active boolean NOT NULL DEFAULT true, created_at timestamptz,
+           weekdays smallint[] NOT NULL DEFAULT '{1,2,3,4,5,6,7}')
 UNIQUE INDEX volunteers_name_uniq ON volunteers (lower(first_name), lower(last_name))
 
 attendances(volunteer_id int → volunteers.id, date date, created_at timestamptz,
@@ -22,6 +23,7 @@ group_members(group_id int → groups.id ON DELETE CASCADE, volunteer_id int →
 - Una presenza per persona per giorno: garantito dalla chiave primaria. `setPresent` usa `ON CONFLICT DO NOTHING` / `DELETE`.
 - Doppioni di nome (case-insensitive) bloccati dall'indice univoco → errore `23505` tradotto in `'duplicate'`.
 - Un volontario può stare in più gruppi (`group_members`, molti-a-molti). Eliminare un gruppo toglie solo le appartenenze, non volontari né presenze.
+- `weekdays`: giorni ISO in cui il volontario è previsto (1 = lunedì … 7 = domenica). Default tutti; `setWeekdays` scarta valori fuori 1–7 e doppioni.
 - Di norma i volontari si disattivano. `deleteVolunteer` (per errori di inserimento) cancella in una transazione presenze, appartenenze ai gruppi e volontario: irreversibile.
 
 ## Applicazione dello schema

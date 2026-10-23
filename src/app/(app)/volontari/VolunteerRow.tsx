@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import type { Group, Volunteer } from "@/lib/db";
 import { deleteVolunteerAction, setActiveAction, updateAction } from "./actions";
 
+const DAYS = ["Lu", "Ma", "Me", "Gi", "Ve", "Sa", "Do"]; // index + 1 = ISO weekday
+
 export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,7 @@ export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
                 String(fd.get("first_name")),
                 String(fd.get("last_name")),
                 fd.getAll("group").map(Number),
+                fd.getAll("weekday").map(Number),
               );
               if (res) setError(res.message);
               else setEditing(false);
@@ -32,6 +35,17 @@ export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
         >
           <input name="first_name" defaultValue={v.first_name} aria-label="Nome" required autoFocus className="h-12 bg-ground px-3 text-base" />
           <input name="last_name" defaultValue={v.last_name} aria-label="Cognome" className="h-12 bg-ground px-3 text-base" />
+          <fieldset className="col-span-2 mt-2">
+            <legend className="mb-1 text-muted">Giorni in cui è previsto</legend>
+            <div className="grid grid-cols-7 gap-1">
+              {DAYS.map((d, i) => (
+                <label key={d} className="flex min-h-12 items-center justify-center bg-ground font-medium has-checked:bg-blue has-checked:text-white">
+                  <input type="checkbox" name="weekday" value={i + 1} defaultChecked={v.weekdays.includes(i + 1)} className="sr-only" />
+                  {d}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           {groups.length > 0 && (
             <fieldset className="col-span-2 mt-2">
               <legend className="mb-1 text-muted">Gruppi</legend>
@@ -93,6 +107,11 @@ export function VolunteerRow({ v, groups }: { v: Volunteer; groups: Group[] }) {
         aria-label={`Modifica ${v.first_name} ${v.last_name}`}
       >
         {v.first_name} {v.last_name}
+        {v.weekdays.length < 7 && (
+          <span className="block text-sm text-muted">
+            {v.weekdays.length === 0 ? "Nessun giorno" : v.weekdays.map((d) => DAYS[d - 1]).join(", ")}
+          </span>
+        )}
         {v.group_ids.length > 0 && (
           <span className="block text-sm text-muted">
             {groups.filter((g) => v.group_ids.includes(g.id)).map((g) => g.name).join(", ")}

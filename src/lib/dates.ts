@@ -17,6 +17,11 @@ export function daysBetween(from: string, to: string): number {
   return Math.round((toUtc(to).getTime() - toUtc(from).getTime()) / 86_400_000) + 1;
 }
 
+/** 1 = Monday ... 7 = Sunday. */
+export function weekdayIso(date: string): number {
+  return toUtc(date).getUTCDay() || 7;
+}
+
 export function isValidDate(s: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) && s >= "1900-01-01" && !isNaN(toUtc(s).getTime()) && fromUtc(toUtc(s)) === s;
 }

@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS volunteers (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE UNIQUE INDEX IF NOT EXISTS volunteers_name_uniq ON volunteers (lower(first_name), lower(last_name));
+-- ISO weekdays the volunteer is expected on: 1 = Monday ... 7 = Sunday.
+ALTER TABLE volunteers ADD COLUMN IF NOT EXISTS weekdays smallint[] NOT NULL DEFAULT '{1,2,3,4,5,6,7}';
 
 CREATE TABLE IF NOT EXISTS attendances (
   volunteer_id int NOT NULL REFERENCES volunteers(id),

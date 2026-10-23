@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { addDays, daysBetween, formatDateIt, formatRangeIt, isValidDate, todayZurich } from "@/lib/dates";
+import { addDays, daysBetween, formatDateIt, formatRangeIt, isValidDate, todayZurich, weekdayIso } from "@/lib/dates";
 
 test("todayZurich uses the Zurich calendar day, not UTC", () => {
   expect(todayZurich(new Date("2026-10-17T22:30:00Z"))).toBe("2026-10-18"); // CEST, UTC+2
@@ -34,4 +34,9 @@ test("formatDateIt", () => {
 test("formatRangeIt", () => {
   expect(formatRangeIt("2026-10-01", "2026-10-31")).toBe("1 ottobre 2026 – 31 ottobre 2026");
   expect(formatRangeIt("2026-10-17", "2026-10-17")).toBe("sabato 17 ottobre 2026");
+});
+
+test("weekdayIso: 1 = Monday ... 7 = Sunday", () => {
+  expect(weekdayIso("2026-10-19")).toBe(1);
+  expect(weekdayIso("2026-10-25")).toBe(7);
 });

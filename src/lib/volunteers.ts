@@ -16,7 +16,7 @@ export const isDuplicate = (e: unknown) => (e as { code?: string }).code === "23
 
 export async function listVolunteers(opts: { activeOnly?: boolean } = {}): Promise<Volunteer[]> {
   const rows = await sql<Volunteer[]>`
-    SELECT id, first_name, last_name, active,
+    SELECT id, first_name, last_name, active, weekdays,
       ARRAY(SELECT group_id FROM group_members m WHERE m.volunteer_id = v.id) AS group_ids
     FROM volunteers v
     ${opts.activeOnly ? sql`WHERE active` : sql``}`;
@@ -41,6 +41,11 @@ export async function updateVolunteer(id: number, first: string, last: string): 
     if (isDuplicate(e)) return "duplicate";
     throw e;
   }
+}
+
+export async function setWeekdays(id: number, weekdays: number[]): Promise<void> {
+  const days = [...new Set(weekdays)].filter((d) => Number.isInteger(d) && d >= 1 && d <= 7).sort();
+  await sql`UPDATE volunteers SET weekdays = ${days} WHERE id = ${id}`;
 }
 
 export async function setActive(id: number, active: boolean): Promise<void> {
