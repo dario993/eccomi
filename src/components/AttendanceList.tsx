@@ -4,7 +4,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import { togglePresence } from "@/app/(app)/actions";
 import type { Volunteer } from "@/lib/db";
 
-const fold = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+export const fold = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
 export function AttendanceList({
   volunteers,
